@@ -245,6 +245,84 @@ def create_gradio_interface():
         border-radius: 8px !important;
         padding: 10px !important;
     }
+    
+    /* Additional instructions textarea styling */
+    .gr-textbox textarea {
+        background: rgba(26, 60, 52, 0.9) !important;
+        color: #e0e0e0 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
+        font-family: 'Roboto', sans-serif !important;
+        min-height: 80px !important;
+        resize: vertical !important;
+    }
+    
+    .gr-textbox textarea::placeholder {
+        color: rgba(224, 224, 224, 0.7) !important;
+        font-style: italic !important;
+    }
+    
+    /* Credits section styling */
+    .credits-section {
+        margin-top: 50px !important;
+        padding: 30px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        backdrop-filter: blur(15px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        text-align: center !important;
+    }
+    
+    .credits-title {
+        color: #1a3c34 !important;
+        font-family: 'Playfair Display', serif !important;
+        font-size: 28px !important;
+        margin-bottom: 20px !important;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.8) !important;
+    }
+    
+    .developer-card {
+        display: inline-block !important;
+        margin: 10px 20px !important;
+        padding: 20px !important;
+        background: linear-gradient(135deg, rgba(26, 60, 52, 0.9) 0%, rgba(46, 107, 78, 0.9) 100%) !important;
+        border-radius: 12px !important;
+        color: #e0e0e0 !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        min-width: 200px !important;
+    }
+    
+    .developer-card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2) !important;
+        background: linear-gradient(135deg, rgba(21, 50, 41, 0.9) 0%, rgba(38, 91, 66, 0.9) 100%) !important;
+    }
+    
+    .developer-name {
+        font-family: 'Roboto', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 18px !important;
+        margin-bottom: 8px !important;
+        color: #e0e0e0 !important;
+    }
+    
+    .linkedin-icon {
+        font-size: 24px !important;
+        color: #0077b5 !important;
+        margin-top: 8px !important;
+    }
+    
+    .credits-description {
+        color: #666 !important;
+        font-family: 'Roboto', sans-serif !important;
+        font-size: 16px !important;
+        margin-bottom: 25px !important;
+        font-style: italic !important;
+    }
     """
     
     with gr.Blocks(theme=FoodieTheme(), css=css) as demo:
@@ -287,6 +365,15 @@ def create_gradio_interface():
                     gr.Markdown("<h3 class='section-header'>👥 Serving Size</h3>")
                     serving_size = gr.Number(label="Number of People", value=4, minimum=1, maximum=20, elem_classes=["green-box"])
                     
+                    # NEW: Additional Instructions Section
+                    gr.Markdown("<h3 class='section-header'>✏️ Additional Instructions</h3>")
+                    additional_instructions = gr.Textbox(
+                        label="Special Requirements (Optional)", 
+                        placeholder="e.g., Make it spicy, gluten-free, low-calorie, one-pot cooking, kid-friendly, etc.",
+                        lines=3,
+                        elem_classes=["green-box"]
+                    )
+                    
                     generate_btn = gr.Button("🍳 Discover Recipes", elem_classes=["green-button"])
                     gr.Markdown("<h3 class='section-header'>📝 Select Recipe</h3>")
                     recipe_selector = gr.Radio(label="Choose Recipe", choices=[], interactive=True, elem_classes=["green-box"])
@@ -301,6 +388,24 @@ def create_gradio_interface():
                 serving_section = gr.HTML(label="Nutrition")
                 instructions_section = gr.HTML(label="Instructions")
                 tips_section = gr.HTML(label="Tips")
+            
+            # Developer Credits Section
+            gr.HTML("""
+            <div class="credits-section">
+                <h3 class="credits-title">👨‍💻 Developed By</h3>
+                <p class="credits-description">Built with passion by our talented development team</p>
+                <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;">
+                    <a href="https://www.linkedin.com/in/somshekar-m/" target="_blank" class="developer-card">
+                        <div class="developer-name">Somshekar M</div>
+                        <div class="linkedin-icon">🔗 LinkedIn</div>
+                    </a>
+                    <a href="https://www.linkedin.com/in/varun-gambhir-903b741b0/" target="_blank" class="developer-card">
+                        <div class="developer-name">Varun Gambhir</div>
+                        <div class="linkedin-icon">🔗 LinkedIn</div>
+                    </a>
+                </div>
+            </div>
+            """)
 
         upload_btn.upload(
             fn=lambda file: upload_and_detect(file, detect_food_items),
@@ -310,13 +415,13 @@ def create_gradio_interface():
         
         generate_btn.click(
             fn=get_recipes,
-            inputs=[ingredients_output, diet_type, cuisine_type, serving_size],
+            inputs=[ingredients_output, diet_type, cuisine_type, serving_size, additional_instructions],
             outputs=[recipe_selector]
         )
         
         show_btn.click(
             fn=lambda *args: show_recipe_details(*args, parse_recipe_sections),
-            inputs=[recipe_selector, ingredients_output, diet_type, cuisine_type, serving_size],
+            inputs=[recipe_selector, ingredients_output, diet_type, cuisine_type, serving_size, additional_instructions],
             outputs=[recipe_header_section, ingredients_section, time_section, equipment_section, serving_section, instructions_section, tips_section]
         )
     
@@ -331,3 +436,4 @@ if __name__ == "__main__":
         share=True,
         debug=True
     )
+    
