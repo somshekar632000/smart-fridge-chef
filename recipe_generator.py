@@ -2,7 +2,7 @@ from google.generativeai import GenerativeModel
 import re
 import gradio as gr
 
-def generate_recipe_suggestions(selected_ingredients, diet_type, cuisine_type, serving_size):
+def generate_recipe_suggestions(selected_ingredients, diet_type, cuisine_type, serving_size, additional_instructions=""):
     if not selected_ingredients:
         return []
     
@@ -16,6 +16,11 @@ def generate_recipe_suggestions(selected_ingredients, diet_type, cuisine_type, s
     elif diet_type == "Non-Vegetarian":
         diet_specification = "can include meat, fish, or poultry"
     
+    # Add additional instructions to the prompt if provided
+    additional_requirements = ""
+    if additional_instructions.strip():
+        additional_requirements = f"\n    - Additional requirements: {additional_instructions.strip()}"
+    
     prompt = f"""
     Suggest exactly 5 {diet_specification} {cuisine_type} recipe names using these ingredients: {ingredients_text}.
     The recipes should serve {serving_size} people.
@@ -26,7 +31,7 @@ def generate_recipe_suggestions(selected_ingredients, diet_type, cuisine_type, s
     - Should use 2-3 main detected ingredients
     - Assume common pantry staples are available
     - Be practical for home cooking
-    - Suitable for serving {serving_size} people
+    - Suitable for serving {serving_size} people{additional_requirements}
     - ONLY provide recipe names, no descriptions or explanations
     
     Format as a simple numbered list with only recipe names:
@@ -51,7 +56,7 @@ def generate_recipe_suggestions(selected_ingredients, diet_type, cuisine_type, s
         print(f"❌ Recipe suggestion error: {e}")
         return []
 
-def generate_detailed_recipe(recipe_name, selected_ingredients, diet_type, cuisine_type, serving_size):
+def generate_detailed_recipe(recipe_name, selected_ingredients, diet_type, cuisine_type, serving_size, additional_instructions=""):
     ingredients_list = [f"{count} {item}{'s' if count > 1 else ''}" 
                        for item, count in selected_ingredients.items()]
     ingredients_text = ", ".join(ingredients_list)
@@ -69,6 +74,11 @@ def generate_detailed_recipe(recipe_name, selected_ingredients, diet_type, cuisi
         time_adjustment = "Reduce cooking time by 10-15% for smaller quantities."
     else:
         time_adjustment = "Standard cooking times apply."
+    
+    # Add additional instructions to the prompt if provided
+    additional_requirements = ""
+    if additional_instructions.strip():
+        additional_requirements = f"\n    - Additional requirements: {additional_instructions.strip()}"
     
     prompt = f"""
     Create a detailed {diet_specification} {cuisine_type} recipe for "{recipe_name}" using: {ingredients_text}.
@@ -104,7 +114,7 @@ def generate_detailed_recipe(recipe_name, selected_ingredients, diet_type, cuisi
     - Recipe must be {diet_specification}
     - Follow authentic {cuisine_type} flavors and techniques
     - Scale all ingredients and timing for {serving_size} servings
-    - Provide nutrition information per single serving only
+    - Provide nutrition information per single serving only{additional_requirements}
     - Do not use any asterisks, bold formatting, or markdown symbols
     - Use plain text formatting only
     """
@@ -117,71 +127,11 @@ def generate_detailed_recipe(recipe_name, selected_ingredients, diet_type, cuisi
 
 def mark_additional_ingredients(ingredients_text, selected_ingredients):
     """
-    Mark ingredients that are not in the original selected ingredients list with (Additional)
+    Return ingredients text without any additional marking
     """
-    # Create a set of original ingredient names (normalized to lowercase)
-    original_ingredients = set()
-    for ingredient in selected_ingredients.keys():
-        # Remove common plurals and normalize
-        normalized = ingredient.lower().strip()
-        original_ingredients.add(normalized)
-        # Also add singular/plural variants
-        if normalized.endswith('s'):
-            original_ingredients.add(normalized[:-1])
-        else:
-            original_ingredients.add(normalized + 's')
-    
-    # Process each line of ingredients
-    lines = ingredients_text.split('\n')
-    processed_lines = []
-    
-    for line in lines:
-        if line.strip():
-            # Skip if already marked as additional ingredient
-            if "(additional ingredient)" in line.lower():
-                # Replace "(additional ingredient)" with just "(Additional)"
-                processed_line = re.sub(r'\s*\(additional ingredient\)', ' (Additional)', line, flags=re.IGNORECASE)
-                processed_lines.append(processed_line)
-                continue
-            
-            # Skip if already has (Additional) marker
-            if "(Additional)" in line:
-                processed_lines.append(line)
-                continue
-            
-            # Extract ingredient name from the line (after quantity and before any description)
-            # This regex tries to match common ingredient line patterns
-            ingredient_match = re.search(r'(?:\d+\s*(?:cups?|tbsp|tsp|tablespoons?|teaspoons?|lbs?|oz|cloves?|pieces?|medium|large|small)?\s+)([a-zA-Z\s]+?)(?:\s*[\(,]|$)', line)
-            
-            if ingredient_match:
-                ingredient_name = ingredient_match.group(1).strip().lower()
-                
-                # Check if this ingredient (or its variants) is in original ingredients
-                is_original = False
-                for orig_ingredient in original_ingredients:
-                    # More precise matching
-                    if (ingredient_name in orig_ingredient or 
-                        orig_ingredient in ingredient_name or
-                        # Check for key words matching
-                        any(word in orig_ingredient for word in ingredient_name.split() if len(word) > 2) or
-                        any(word in ingredient_name for word in orig_ingredient.split() if len(word) > 2)):
-                        is_original = True
-                        break
-                
-                # If not found in original ingredients and doesn't already have parentheses, mark as additional
-                if not is_original and "(" not in line:
-                    line = line + " (Additional)"
-                elif not is_original and "(" in line:
-                    # If ingredient is not original but already has parentheses, add (Additional) before the last closing parenthesis
-                    line = re.sub(r'\)([^)]*$)', r') (Additional)\1', line)
-            
-            processed_lines.append(line)
-        else:
-            processed_lines.append(line)
-    
-    return '\n'.join(processed_lines)
+    return ingredients_text
 
-def get_recipes(selected_ingredients, diet_type, cuisine_type, serving_size):
+def get_recipes(selected_ingredients, diet_type, cuisine_type, serving_size, additional_instructions=""):
     if not selected_ingredients:
         return gr.Radio(choices=[], value=None, label="⚠ Please select ingredients first")
     
@@ -193,13 +143,13 @@ def get_recipes(selected_ingredients, diet_type, cuisine_type, serving_size):
         name = re.sub(r'\s*\(\d+\)$', '', item).lower()
         counts[name] = counts.get(name, 0) + 1
     
-    recipes = generate_recipe_suggestions(counts, diet_type, cuisine_type, serving_size)
+    recipes = generate_recipe_suggestions(counts, diet_type, cuisine_type, serving_size, additional_instructions)
     if not recipes:
         return gr.Radio(choices=[], value=None, label="⚠ No recipes generated")
     
     return gr.Radio(choices=recipes, value=None, label="Choose Recipe", interactive=True)
 
-def show_recipe_details(recipe_name, selected_ingredients, diet_type, cuisine_type, serving_size, parse_recipe_sections):
+def show_recipe_details(recipe_name, selected_ingredients, diet_type, cuisine_type, serving_size, additional_instructions, parse_recipe_sections):
     if not recipe_name:
         return (
             gr.HTML(""), gr.HTML(""), gr.HTML(""), 
@@ -217,11 +167,16 @@ def show_recipe_details(recipe_name, selected_ingredients, diet_type, cuisine_ty
         name = re.sub(r'\s*\(\d+\)$', '', item).lower()
         counts[name] = counts.get(name, 0) + 1
     
-    detailed_recipe = generate_detailed_recipe(recipe_name, counts, diet_type, cuisine_type, serving_size)
+    detailed_recipe = generate_detailed_recipe(recipe_name, counts, diet_type, cuisine_type, serving_size, additional_instructions)
     sections = parse_recipe_sections(detailed_recipe)
     
     # Mark additional ingredients that weren't in the original selection
     sections['ingredients'] = mark_additional_ingredients(sections['ingredients'], counts)
+    
+    # Add additional instructions indicator to the header if provided
+    instructions_indicator = ""
+    if additional_instructions.strip():
+        instructions_indicator = f" • Custom Instructions Applied"
     
     recipe_header_html = f"""
     <div style='background: linear-gradient(135deg, #1a3c34 0%, #2e6b4e 100%); color: white; padding: 30px; border-radius: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); margin-bottom: 25px; text-align: center;'>
@@ -229,7 +184,7 @@ def show_recipe_details(recipe_name, selected_ingredients, diet_type, cuisine_ty
             <span style='margin-right: 15px; font-size: 40px;'>🍴</span>{recipe_name}
         </h2>
         <p style='margin: 10px 0 0 0; font-size: 18px; font-family: "Roboto", sans-serif; color: #e0e0e0;'>
-            {diet_type} • {cuisine_type} • Serves {serving_size}
+            {diet_type} • {cuisine_type} • Serves {serving_size}{instructions_indicator}
         </p>
     </div>
     """
@@ -270,7 +225,6 @@ def show_recipe_details(recipe_name, selected_ingredients, diet_type, cuisine_ty
             <span style='margin-right: 10px; font-size: 28px; color: #e0e0e0;'>🍽</span>Nutrition (Per Serving)
         </h3>
         <div style='line-height: 1.8; font-size: 16px; font-family: "Roboto", sans-serif; color: #e0e0e0;'>
-            <strong style='color: #e0e0e0;'>Cook:</strong> {sections['cook_time']} minutes
             <strong style='color: #e0e0e0;'>Calories per serving:</strong> {sections['calories']}
         </div>
     </div>
