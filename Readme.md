@@ -1,71 +1,192 @@
-Smart Fridge Chef
-Overview
-Smart Fridge Chef is an AI-powered web application that transforms your kitchen ingredients into delicious, personalized recipes. By uploading an image of your ingredients, the app uses advanced computer vision to detect food items and suggests tailored recipes based on your dietary preferences, cuisine style, and serving size. Built with a sleek Gradio interface, it offers an intuitive user experience for home cooks looking to create meals from what’s in their fridge.
-Features
+# Smart Fridge Chef 🍳
 
-Ingredient Detection: Upload an image, and the app uses Google’s Gemini API to identify prominent ingredients with bounding box annotations.
-Recipe Suggestions: Generate up to five recipe names based on detected ingredients, cuisine type (e.g., Italian, Japanese, Mexican), dietary preferences (Vegetarian or Non-Vegetarian), and serving size.
-Detailed Recipes: View comprehensive recipe details, including ingredients, prep/cook times, equipment needed, calories per serving, step-by-step instructions, and tips for success.
-Custom Instructions: Add special requirements like "spicy," "gluten-free," or "kid-friendly" to tailor recipes.
-Visual Annotations: Display detected ingredients with labeled bounding boxes on the uploaded image.
-User-Friendly Interface: A modern, responsive UI with a food-themed design, built using Gradio and custom CSS.
+An AI-powered web application that transforms your kitchen ingredients into delicious, personalized recipes. Simply upload an image of your ingredients, and let Smart Fridge Chef suggest tailored recipes based on your dietary preferences, cuisine style, and serving size.
 
-Directory Structure
-├── food_detector.py       # Handles ingredient detection using Gemini API
-├── image_processor.py     # Processes images and creates annotated outputs
-├── main.py               # Launches the Gradio interface
-├── recipe_generator.py    # Generates recipe suggestions and details
-├── ui_components.py       # Defines the Gradio UI and custom theme
-└── utils.py              # Utility functions for parsing and counting
+## ✨ Features
 
-Installation
+- **🔍 Intelligent Ingredient Detection**: Upload an image and leverage Google's Gemini API to automatically identify ingredients with precise bounding box annotations
+- **📝 Personalized Recipe Suggestions**: Generate up to 5 recipe recommendations based on:
+  - Detected ingredients
+  - Cuisine preferences (Italian, Japanese, Mexican, etc.)
+  - Dietary requirements (Vegetarian/Non-Vegetarian)
+  - Serving size
+- **📖 Comprehensive Recipe Details**: Get complete recipes with:
+  - Full ingredient lists
+  - Prep and cook times
+  - Required equipment
+  - Nutritional information (calories per serving)
+  - Step-by-step instructions
+  - Pro tips for success
+- **🎯 Custom Requirements**: Add special instructions like "spicy", "gluten-free", or "kid-friendly"
+- **🖼️ Visual Annotations**: View your uploaded image with labeled ingredient bounding boxes
+- **💫 Modern UI**: Sleek, responsive interface with food-themed design
 
-Clone the Repository:
-git clone https://github.com/your-repo/smart-fridge-chef.git
-cd smart-fridge-chef
+## 🏗️ Project Structure
 
+```
+smart-fridge-chef/
+│
+├── food_detector.py      # Ingredient detection using Gemini API
+├── image_processor.py    # Image processing and annotation creation
+├── main.py               # Gradio application launcher
+├── recipe_generator.py   # Recipe suggestion and detail generation
+├── ui_components.py      # Gradio UI components and custom theming
+├── utils.py              # Utility functions for parsing and data processing
+├── requirements.txt      # Python dependencies
+├── .env.example         # Environment variables template
+├── README.md            # Project documentation
+└── LICENSE              # MIT License file
+```
 
-Install Dependencies:Ensure Python 3.8+ is installed, then install the required packages:
-pip install -r requirements.txt
+## 🚀 Getting Started
 
-Required packages include:
+### Prerequisites
 
-google-generativeai
-opencv-python
-gradio
-python-dotenv
+- Python 3.8 or higher
+- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+- Stable internet connection
 
+### Installation
 
-Set Up Environment Variables:Create a .env file in the project root and add your Gemini API key:
-GEMINI_API_KEY=your_api_key_here
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/smart-fridge-chef.git
+   cd smart-fridge-chef
+   ```
 
+2. **Create a virtual environment** (recommended)
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-Run the Application:Launch the Gradio interface:
-python main.py
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-The app will be available at http://0.0.0.0:7860.
+4. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit the `.env` file and add your Gemini API key:
+   ```
+   GEMINI_API_KEY=your_api_key_here
+   ```
 
+5. **Launch the application**
+   ```bash
+   python main.py
+   ```
 
-Usage
+6. **Access the app**
+   Open your browser and navigate to `http://localhost:7860`
 
-Upload an Image: Use the "Upload Image" button to upload a photo of your ingredients.
-View Detected Ingredients: The app displays an annotated image with labeled bounding boxes and a list of detected ingredients.
-Select Preferences: Choose ingredients, dietary type, cuisine style, serving size, and add optional instructions (e.g., "make it spicy").
-Generate Recipes: Click "Discover Recipes" to get a list of five recipe suggestions.
-View Recipe Details: Select a recipe and click "View Full Recipe" to see detailed instructions, ingredients, and more.
+## 📖 Usage Guide
 
-Limitations
+### Step 1: Upload Your Ingredients
+- Click the **"Upload Image"** button
+- Select a clear photo of your available ingredients
+- Ensure good lighting and visibility of items
 
-Camera Support: Camera capture is not supported on Windows; users must upload images manually.
-API Dependency: Requires a valid Gemini API key and internet connection.
-Image Quality: Ingredient detection accuracy depends on image clarity and lighting.
-Cuisine and Diet: Limited to predefined cuisine types and Vegetarian/Non-Vegetarian diets.
+### Step 2: Review Detected Ingredients
+- View the annotated image with labeled bounding boxes
+- Check the list of automatically detected ingredients
+- Manually select/deselect ingredients as needed
 
-Developers
-Built with passion by:
+### Step 3: Set Your Preferences
+- **Dietary Type**: Choose Vegetarian or Non-Vegetarian
+- **Cuisine Style**: Select from Italian, Japanese, Mexican, Indian, etc.
+- **Serving Size**: Specify number of people (1-8)
+- **Special Instructions**: Add requirements like "make it spicy", "gluten-free", "low-carb", etc.
 
-Somshekar M
-Varun Gambhir
+### Step 4: Generate Recipes
+- Click **"Discover Recipes"** to get 5 personalized suggestions
+- Browse through the recipe titles and descriptions
 
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
+### Step 5: View Full Recipe Details
+- Select your preferred recipe
+- Click **"View Full Recipe"** for complete instructions
+- Get ingredient quantities, cooking steps, and helpful tips
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GEMINI_API_KEY` | Your Google Gemini API key | Yes |
+
+### Supported Image Formats
+
+- JPEG (.jpg, .jpeg)
+- PNG (.png)
+- WebP (.webp)
+- Maximum file size: 20MB
+
+## ⚠️ Known Limitations
+
+- **Camera Support**: Direct camera capture not supported on Windows systems
+- **API Dependency**: Requires active internet connection and valid Gemini API key
+- **Detection Accuracy**: Ingredient identification depends on image quality and lighting conditions
+- **Cuisine Options**: Limited to predefined cuisine types
+- **Dietary Categories**: Currently supports only Vegetarian/Non-Vegetarian classifications
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Setup
+
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run tests
+python -m pytest tests/
+
+# Format code
+black .
+flake8 .
+```
+
+## 🐛 Bug Reports & Feature Requests
+
+Please use the [GitHub Issues](https://github.com/your-username/smart-fridge-chef/issues) page to:
+- Report bugs
+- Request new features
+- Ask questions
+- Suggest improvements
+
+## 📊 Roadmap
+
+- [ ] Support for more dietary restrictions (Vegan, Keto, Paleo)
+- [ ] Recipe rating and favorites system
+- [ ] Shopping list generation
+- [ ] Nutritional analysis improvements
+- [ ] Mobile app development
+- [ ] Multi-language support
+- [ ] Recipe sharing community
+
+## 🙏 Acknowledgments
+
+- Google Gemini API for powerful AI capabilities
+- Gradio team for the excellent UI framework
+- OpenCV community for image processing tools
+- All contributors and users of Smart Fridge Chef
+
+## 👥 Authors
+
+**Built with passion by:**
+- **Somshekar M**
+- **Varun Gambhir**
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
