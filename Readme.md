@@ -1,4 +1,4 @@
-# Smart Fridge Chef 🍳
+# Smart Fridge Chef 🍳   [Deployment link on GCP(Active)](https://smart-fridge-chef-948064657022.us-west4.run.app)
 
 An AI-powered web application that transforms your kitchen ingredients into delicious, personalized recipes. Simply upload an image of your ingredients, and let Smart Fridge Chef suggest tailored recipes based on your dietary preferences, cuisine style, and serving size.
 
